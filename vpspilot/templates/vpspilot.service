@@ -1,0 +1,18 @@
+[Unit]
+Description=VPSPilot - The Autonomous VPS Command Center
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/
+ExecStart=/usr/bin/python3 -m vpspilot.cli start --host 0.0.0.0 --port 8888 --foreground
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

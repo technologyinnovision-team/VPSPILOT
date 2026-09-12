@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VPSPilot - VPS Command Center</title>
+  <link rel="stylesheet" href="/static/css/dashboard.css">
+  <link rel="stylesheet" href="/static/vendor/xterm.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20width=%22100%22%20height=%22100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+</head>
+<body>
+
+  <!-- Login Screen Overlay -->
+  <div id="login-screen">
+    <div class="login-card">
+      <div class="login-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+          <path d="M2 17l10 5 10-5"></path>
+          <path d="M2 12l10 5 10-5"></path>
+        </svg>
+      </div>
+      <h2 style="font-size: 1.5rem; margin-bottom: 0.25rem;">VPSPilot</h2>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.75rem;">Autonomous VPS Command Center</p>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" id="login-username" class="form-input" value="admin" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="login-password" class="form-input" placeholder="Enter admin password" required autocomplete="current-password">
+        </div>
+        <div id="login-error" style="color: var(--danger); font-size: 0.8rem; margin-bottom: 1rem; min-height: 1.2rem;"></div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.75rem;">
+          Authenticate & Access Deck
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Header & Navigation -->
+  <header>
+    <div class="brand">
+      <span style="font-size: 1.3rem;">⚡</span>
+      <span>VPSPilot</span>
+      <span class="brand-badge">PRO</span>
+    </div>
+
+    <ul class="nav-tabs">
+      <li class="nav-tab active" data-tab="overview">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        Overview
+      </li>
+      <li class="nav-tab" data-tab="terminal">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+        Terminal
+      </li>
+      <li class="nav-tab" data-tab="services">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+        Services
+      </li>
+      <li class="nav-tab" data-tab="processes">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+        Processes
+      </li>
+      <li class="nav-tab" data-tab="vpsconfig">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        VPS Config
+      </li>
+      <li class="nav-tab" data-tab="settings">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        Security
+      </li>
+    </ul>
+
+    <div class="header-right">
+      <div class="status-pill">
+        <span class="status-dot"></span>
+        <span>Online</span>
+      </div>
+      <div style="font-size: 0.85rem; color: var(--text-muted);">
+        <span id="nav-username">admin</span>
+      </div>
+      <button class="btn btn-sm btn-outline" onclick="handleLogout()" title="Log out">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Areas -->
+  <main>
+
+    <!-- Tab: Overview -->
+    <div id="tab-overview" class="tab-pane active">
+      <div class="grid-cards">
+        <!-- CPU Card -->
+        <div class="card">
+          <div class="card-title">
+            <span>CPU Utilization</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
+          </div>
+          <div class="card-value" id="cpu-val">0%</div>
+          <div class="progress-bar-container">
+            <div id="cpu-bar" class="progress-bar" style="width: 0%"></div>
+          </div>
+          <div class="card-subtext" id="cpu-sub">0 Cores • Load: 0.00, 0.00, 0.00</div>
+          <div id="cpu-cores-grid" class="cores-grid"></div>
+        </div>
+
+        <!-- RAM Card -->
+        <div class="card">
+          <div class="card-title">
+            <span>Memory (RAM)</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 19v-3"></path><path d="M10 19v-3"></path><path d="M14 19v-3"></path><path d="M18 19v-3"></path><path d="M6 5v3"></path><path d="M10 5v3"></path><path d="M14 5v3"></path><path d="M18 5v3"></path><rect x="2" y="8" width="20" height="8" rx="1"></rect></svg>
+          </div>
+          <div class="card-value" id="ram-val">0%</div>
+          <div class="progress-bar-container">
+            <div id="ram-bar" class="progress-bar" style="width: 0%"></div>
+          </div>
+          <div class="card-subtext" id="ram-sub">0 GB / 0 GB</div>
+        </div>
+
+        <!-- Disk Card -->
+        <div class="card">
+          <div class="card-title">
+            <span>Primary Disk</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+          </div>
+          <div class="card-value" id="disk-val">0%</div>
+          <div class="progress-bar-container">
+            <div id="disk-bar" class="progress-bar" style="width: 0%"></div>
+          </div>
+          <div class="card-subtext" id="disk-sub">0 GB / 0 GB on /</div>
+        </div>
+
+        <!-- Network Card -->
+        <div class="card">
+          <div class="card-title">
+            <span>Network Bandwidth</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+          </div>
+          <div style="display: flex; gap: 1.5rem; align-items: baseline; margin-top: 0.25rem;">
+            <div>
+              <span style="font-size: 0.75rem; color: var(--text-muted);">RECEIVE ↓</span>
+              <div class="card-value" id="net-rx-rate" style="font-size: 1.35rem; color: #34d399;">0 KB/s</div>
+            </div>
+            <div>
+              <span style="font-size: 0.75rem; color: var(--text-muted);">TRANSMIT ↑</span>
+              <div class="card-value" id="net-tx-rate" style="font-size: 1.35rem; color: #60a5fa;">0 KB/s</div>
+            </div>
+          </div>
+          <div class="card-subtext" id="net-total-sub" style="margin-top: 0.75rem;">Total I/O: Calculating...</div>
+        </div>
+      </div>
+
+      <!-- Host Specification Banner -->
+      <div class="card" style="margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1.5rem;">
+        <div>
+          <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Hostname</span>
+          <div id="sys-hostname" style="font-weight: 600; font-size: 1.1rem;">-</div>
+        </div>
+        <div>
+          <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Operating System</span>
+          <div id="sys-distro" style="font-weight: 600; font-size: 1.1rem;">-</div>
+        </div>
+        <div>
+          <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Kernel Release</span>
+          <div id="sys-kernel" style="font-weight: 600; font-size: 1.1rem; font-family: var(--font-mono);">-</div>
+        </div>
+        <div>
+          <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">System Uptime</span>
+          <div id="sys-uptime" style="font-weight: 600; font-size: 1.1rem; color: #34d399;">-</div>
+        </div>
+      </div>
+
+      <!-- Storage Mounts Table -->
+      <div class="table-container">
+        <div class="table-header-bar">
+          <span class="table-title">Filesystem Mounts</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Mount Point</th>
+              <th>Device</th>
+              <th>Filesystem</th>
+              <th>Used / Total</th>
+              <th style="width: 250px;">Utilization</th>
+            </tr>
+          </thead>
+          <tbody id="disks-tbody">
+            <tr><td colspan="5" style="text-align:center; padding: 1.5rem;">Reading storage topology...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab: Terminal -->
+    <div id="tab-terminal" class="tab-pane">
+      <div class="terminal-wrapper">
+        <div class="terminal-header">
+          <div class="terminal-title">
+            <div class="terminal-dots">
+              <div class="terminal-dot dot-red"></div>
+              <div class="terminal-dot dot-yellow"></div>
+              <div class="terminal-dot dot-green"></div>
+            </div>
+            <span>vpspilot@shell:~#</span>
+            <span id="terminal-status" style="font-size: 0.75rem; color: var(--success); margin-left: 0.5rem;">Connecting...</span>
+          </div>
+          <div class="terminal-actions">
+            <button class="btn btn-sm btn-outline" onclick="sendTerminalSignal('\x03')">Ctrl+C</button>
+            <button class="btn btn-sm btn-outline" onclick="sendTerminalSignal('\x04')">Ctrl+D</button>
+            <button class="btn btn-sm btn-outline" onclick="clearTerminal()">Clear</button>
+            <button class="btn btn-sm btn-outline" onclick="reconnectTerminal()">Reconnect</button>
+            <button class="btn btn-sm btn-outline" onclick="fitTerminal()">Fit</button>
+          </div>
+        </div>
+        <div id="terminal-container"></div>
+      </div>
+    </div>
+
+    <!-- Tab: Services -->
+    <div id="tab-services" class="tab-pane">
+      <div class="table-container">
+        <div class="table-header-bar">
+          <div>
+            <span class="table-title">Systemd Services</span>
+            <span id="services-count" style="font-size: 0.85rem; color: var(--text-muted); margin-left: 0.5rem;"></span>
+          </div>
+          <div class="filter-group">
+            <input type="text" id="services-search-input" placeholder="Search service name or description..." style="width: 260px;">
+            <select id="services-status-filter">
+              <option value="all">All States</option>
+              <option value="active">Active only</option>
+              <option value="inactive">Inactive only</option>
+              <option value="failed">Failed only</option>
+            </select>
+            <button class="btn btn-outline" onclick="fetchServices()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+              Refresh
+            </button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Service Unit</th>
+              <th>State</th>
+              <th>Substate</th>
+              <th>Load</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="services-tbody">
+            <tr><td colspan="5" style="text-align:center; padding: 2rem;">Loading services...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab: Processes -->
+    <div id="tab-processes" class="tab-pane">
+      <div class="table-container">
+        <div class="table-header-bar">
+          <span class="table-title">Process Explorer</span>
+          <div class="filter-group">
+            <input type="text" id="proc-search-input" placeholder="Search PID, name or command..." style="width: 240px;">
+            <select id="proc-sort-select">
+              <option value="cpu_percent">Sort: CPU %</option>
+              <option value="memory_percent">Sort: Memory %</option>
+              <option value="pid">Sort: PID</option>
+            </select>
+            <button class="btn btn-outline" onclick="fetchProcesses()">Refresh</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>PID</th>
+              <th>Process Name</th>
+              <th>User</th>
+              <th>CPU %</th>
+              <th>Memory %</th>
+              <th>Command</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="processes-tbody">
+            <tr><td colspan="7" style="text-align:center; padding: 2rem;">Loading processes...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab: VPS Configuration -->
+    <div id="tab-vpsconfig" class="tab-pane">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 1.5rem;">
+
+        <!-- Identity & Timezone -->
+        <div class="config-section">
+          <div class="config-section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+            Host Identity & Timezone
+          </div>
+
+          <form id="form-hostname" style="margin-bottom: 1.25rem;">
+            <label class="form-label">VPS Hostname</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="text" id="cfg-hostname-input" class="form-input" required>
+              <button type="submit" class="btn btn-primary">Update</button>
+            </div>
+          </form>
+
+          <form id="form-timezone">
+            <label class="form-label">System Timezone (Current: <span id="cfg-current-tz" style="color:var(--primary); font-weight:600;">-</span>)</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <select id="cfg-timezone-select" class="form-input" style="flex:1;"></select>
+              <button type="submit" class="btn btn-primary">Apply</button>
+            </div>
+          </form>
+
+          <div style="margin-top: 1.5rem;">
+            <label class="form-label">DNS Resolvers (/etc/resolv.conf)</label>
+            <div id="cfg-dns-list" style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted); background: var(--bg-input); padding: 0.6rem 0.85rem; border-radius: 8px;">-</div>
+          </div>
+        </div>
+
+        <!-- SSH Security Settings -->
+        <div class="config-section">
+          <div class="config-section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            SSH Security Inspection
+          </div>
+
+          <div class="config-row">
+            <span style="color: var(--text-muted);">SSH Daemon Status</span>
+            <span id="ssh-status-badge" class="badge badge-inactive">Checking...</span>
+          </div>
+          <div class="config-row">
+            <span style="color: var(--text-muted);">SSH Listening Port</span>
+            <span id="ssh-port-val" style="font-family: var(--font-mono); font-weight: 600;">22</span>
+          </div>
+          <div class="config-row">
+            <span style="color: var(--text-muted);">Permit Root Login</span>
+            <span id="ssh-root-login" style="font-family: var(--font-mono); font-weight: 600;">-</span>
+          </div>
+          <div class="config-row">
+            <span style="color: var(--text-muted);">Password Authentication</span>
+            <span id="ssh-pwd-auth" style="font-family: var(--font-mono); font-weight: 600;">-</span>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem;">
+            Note: SSH config values are read from /etc/ssh/sshd_config. To modify daemon settings, use the interactive terminal.
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Firewall (UFW) Manager -->
+      <div class="config-section" style="margin-top: 1.5rem;">
+        <div class="table-header-bar" style="padding: 0 0 1rem 0;">
+          <div class="config-section-title" style="margin: 0;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            Firewall Security (UFW)
+            <span id="fw-status-badge" class="badge badge-inactive" style="margin-left: 0.5rem;">Checking...</span>
+          </div>
+          <button id="fw-toggle-btn" class="btn btn-sm btn-outline" onclick="toggleFirewall()">Toggle Firewall</button>
+        </div>
+
+        <form id="form-add-rule" style="display: flex; gap: 0.75rem; margin-bottom: 1rem; align-items: flex-end; flex-wrap: wrap;">
+          <div>
+            <label class="form-label">Port or Service (e.g. 80, 443, 22/tcp)</label>
+            <input type="text" id="fw-port-input" placeholder="80/tcp" required style="width: 200px;">
+          </div>
+          <div>
+            <label class="form-label">Action</label>
+            <select id="fw-action-select" style="width: 120px;">
+              <option value="allow">ALLOW</option>
+              <option value="deny">DENY</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">+ Add Firewall Rule</button>
+        </form>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Rule #</th>
+              <th>Target Port / Service</th>
+              <th>Action</th>
+              <th>Direction</th>
+              <th>Source / Options</th>
+            </tr>
+          </thead>
+          <tbody id="fw-rules-tbody">
+            <tr><td colspan="5" style="text-align:center; padding: 1.5rem;">Inspecting firewall status...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Maintenance & Power Controls -->
+      <div class="config-section" style="margin-top: 1.5rem;">
+        <div class="config-section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+          System Maintenance & Power
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div style="font-weight: 600;">System Updates Status</div>
+            <div id="updates-count" style="font-size: 0.85rem; color: var(--text-muted);">Checking package repositories...</div>
+          </div>
+          <div style="display: flex; gap: 0.75rem;">
+            <button class="btn btn-outline" onclick="executePower('reboot')" style="border-color: var(--warning); color: var(--warning);">
+              Reboot VPS
+            </button>
+            <button class="btn btn-danger" onclick="executePower('poweroff')">
+              Power Off VPS
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Security & Settings -->
+    <div id="tab-settings" class="tab-pane">
+      <div class="config-section" style="max-width: 500px;">
+        <div class="config-section-title">Change Dashboard Password</div>
+        <form id="form-change-password">
+          <div class="form-group">
+            <label class="form-label">Current Password</label>
+            <input type="password" id="pwd-current" class="form-input" required autocomplete="current-password">
+          </div>
+          <div class="form-group">
+            <label class="form-label">New Password (min 6 characters)</label>
+            <input type="password" id="pwd-new" class="form-input" minlength="6" required autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm New Password</label>
+            <input type="password" id="pwd-confirm" class="form-input" minlength="6" required autocomplete="new-password">
+          </div>
+          <div id="pwd-status-msg" style="font-size: 0.85rem; margin-bottom: 1rem;"></div>
+          <button type="submit" class="btn btn-primary">Update Admin Password</button>
+        </form>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Service Log Viewer Modal -->
+  <div id="log-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="log-modal-title" style="font-size: 1.1rem; font-family: var(--font-mono);">Service Logs</h3>
+        <button class="btn btn-sm btn-outline" onclick="closeLogModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="service-log-box" class="log-box">Loading logs...</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="refreshCurrentLogs()">Refresh Logs</button>
+        <button class="btn btn-outline" onclick="copyLogsToClipboard()">Copy Logs</button>
+        <button class="btn btn-primary" onclick="closeLogModal()">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/static/vendor/xterm.js"></script>
+  <script src="/static/vendor/xterm-addon-fit.js"></script>
+  <script src="/static/js/terminal.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
