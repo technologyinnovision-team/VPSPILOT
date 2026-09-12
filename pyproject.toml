@@ -8,14 +8,36 @@ version = "1.0.0"
 description = "VPSPilot: The Autonomous Next-Gen VPS Command Center & Online Management Dashboard"
 readme = "README.md"
 requires-python = ">=3.9"
+license = "Apache-2.0"
 authors = [
-    { name = "Google DeepMind Antigravity Team" }
+    { name = "Technology Innovision Team" }
+]
+keywords = [
+    "vps",
+    "dashboard",
+    "terminal",
+    "web-terminal",
+    "systemd",
+    "server-management",
+    "monitoring",
+    "telemetry",
+    "cloud"
 ]
 classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: System Administrators",
+    "Intended Audience :: Developers",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Operating System :: POSIX :: Linux",
     "Topic :: System :: Systems Administration",
-    "Topic :: System :: Monitoring"
+    "Topic :: System :: Monitoring",
+    "Topic :: Terminals :: Terminal Emulators/X Terminals"
 ]
 dependencies = [
     "aiohttp>=3.8.0",
@@ -24,6 +46,12 @@ dependencies = [
 
 [project.scripts]
 vpspilot = "vpspilot.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/technologyinnovision-team/VPSPILOT"
+Documentation = "https://github.com/technologyinnovision-team/VPSPILOT#readme"
+Repository = "https://github.com/technologyinnovision-team/VPSPILOT.git"
+"Bug Tracker" = "https://github.com/technologyinnovision-team/VPSPILOT/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]

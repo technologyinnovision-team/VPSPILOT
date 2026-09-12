@@ -159,18 +159,27 @@ def install_systemd_service():
         print("[-] Error: Installing systemd service requires root privileges. Please run with sudo.")
         sys.exit(1)
 
-    python_bin = sys.executable
+    # Detect vpspilot executable or fallback to python module
+    import shutil
+    vpspilot_bin = shutil.which("vpspilot")
+    if vpspilot_bin:
+        exec_start = f"{vpspilot_bin} start --host 0.0.0.0 --port 8888 --foreground"
+    else:
+        exec_start = f"{sys.executable} -m vpspilot.cli start --host 0.0.0.0 --port 8888 --foreground"
+
     service_content = f"""[Unit]
 Description=VPSPilot - The Autonomous VPS Command Center
-After=network.target
+After=network.target network-online.target
+Wants=network-online.target
 
 [Service]
 Type=simple
 User=root
 WorkingDirectory=/
-ExecStart={python_bin} -m vpspilot.cli start --host 0.0.0.0 --port 8888 --foreground
+ExecStart={exec_start}
 Restart=always
-RestartSec=5
+RestartSec=3
+LimitNOFILE=65536
 StandardOutput=journal
 StandardError=journal
 
@@ -180,11 +189,12 @@ WantedBy=multi-user.target
     dest = Path("/etc/systemd/system/vpspilot.service")
     dest.write_text(service_content, encoding="utf-8")
     subprocess.run(["systemctl", "daemon-reload"], check=True)
-    subprocess.run(["systemctl", "enable", "vpspilot.service"], check=True)
-    print("[+] Successfully installed and enabled systemd service: /etc/systemd/system/vpspilot.service")
-    print("[+] You can now control it via:")
-    print("      sudo systemctl start vpspilot")
-    print("      sudo systemctl status vpspilot")
+    # Enable and start immediately so it ALWAYS runs
+    subprocess.run(["systemctl", "enable", "--now", "vpspilot.service"], check=True)
+    subprocess.run(["systemctl", "restart", "vpspilot.service"], check=True)
+    print("[+] Successfully installed and started persistent systemd service: /etc/systemd/system/vpspilot.service")
+    print("[+] VPSPilot is now ALWAYS RUNNING (auto-starts on boot and restarts on failure)!")
+    print("[+] Check live status with: sudo systemctl status vpspilot")
 
 def uninstall_systemd_service():
     if os.geteuid() != 0:
